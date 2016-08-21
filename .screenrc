@@ -1,0 +1,7 @@
+caption always "%{+b rk}%H%{gk} |%C%a %{yk}%D %d/%m/%Y | %{dk}%-=load: %l %{wk}"
+hardstatus alwayslastline "%{= kw}%-w%{= BW}%n %t%{-}%+w %{+b}"
+startup_message off
+vbell off
+defmonitor on
+defscrollback 1000
+autodetach on

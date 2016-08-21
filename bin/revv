@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# rev equivalent
+awk -vFS= '{for(i=NF;i>=1;i--) printf $(i);print ""}' $1

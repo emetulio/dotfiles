@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# get rid of lines starting with # character
+egrep -a -v '^[[:space:]]*#' $1 | egrep -a '[[:print:]]'
+

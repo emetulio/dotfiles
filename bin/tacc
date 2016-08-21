@@ -1,0 +1,5 @@
+#!/bin/sh
+
+#reverse cat
+sed -e '1!G;h;$!d' $1
+# sed -n '1!G;h;$p'

@@ -1,0 +1,45 @@
+#!/bin/bash
+
+
+usage() {
+  cat <<ACM1PT
+
+usage: ${0} [options] 
+
+ Options:
+    -L      some string
+    -p      some other string
+    -P      yet another string
+
+    -h      Print this help message
+
+Brief explanation about what does this string does.
+
+ACM1PT
+}
+
+if [[ -z $1 || $1 = @(-h|--help) ]]; then
+  usage
+  exit $(( $# ? 0 : 1 ))
+fi
+
+
+while getopts ':L:pP' flag; do
+  case $flag in
+    L)
+      echo "-L was triggered. Parameter: $OPTARG" 
+      ;;
+    p)
+      echo "-p was triggered. Parameter: $OPTARG"
+      ;;
+    P)
+      echo "-P was triggered. Parameter: $OPTARG"
+      ;;
+    ?)
+      echo "Invalid option: -$OPTARG" 
+      ;;
+  esac
+done
+shift $(( OPTIND - 1 ))
+(( $# )) || echo "faltan argumentos"
+shift

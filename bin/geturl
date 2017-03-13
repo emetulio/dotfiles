@@ -1,0 +1,4 @@
+#!/bin/sh
+
+grep -Eo "(http|https)://[a-zA-Z0-9./?&=_:+-]*" $1 | sort -u
+

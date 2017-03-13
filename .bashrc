@@ -2,35 +2,41 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-# If not running interactively, don't do anything
-case $- in
-    *i*) ;;
-      *) return;;
-esac
+#............. variables ......................
+WHICH=$(which which)
+LIST=
+#..............................................   
 
-#.......... functions ...........
+#............. functions ......................
 findpgm()
 {
 for i in $LIST; do
-    VAR=$(which $i)
+    VAR=$($WHICH $i)
     if [[ -n $VAR ]]; then
         break
     fi
 done
 echo $VAR
 }
-#................................
+#..............................................   
+
+
+LIST="less most more"
+export PAGER=$(findpgm)
+LIST="emacs vim vi nano ed"
+export EDITOR=$(findpgm)
+export VISUAL=$EDITOR
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
-HISTCONTROL=ignoreboth
+export HISTCONTROL=ignoreboth
 
 # append to the history file, don't overwrite it
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=5000
-HISTFILESIZE=10000
+export HISTSIZE=1000
+export HISTFILESIZE=2000
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -40,22 +46,10 @@ shopt -s checkwinsize
 # match all files and zero or more directories and subdirectories.
 #shopt -s globstar
 
-# set/export one pager from the list
-LIST="most less more"
-export PAGER=$(findpgm)
+# make less more friendly for non-text input files, see lesspipe(1)
+#[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-# set/export one EDITOR/VISUAL from the list
-LIST="emacs vim vi"
-export EDITOR=$(findpgm)
-export VISUAL=$EDITOR
-
-# Set the BROWSER variable
-if [ -n "$DISPLAY" ]; then
-    LIST="firefox opera chromium vivaldi arora midori"
-else
-    LIST="w3m elinks links2 links lynx"
-fi
-export BROWSER=$(findpgm)
+################################################################################
 
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
@@ -84,7 +78,7 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w \$\[\033[00m\] '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
@@ -111,19 +105,11 @@ fi
 # colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
-# some more aliases
+# some more ls aliases
 alias l='ls -l'
-#alias l='ls -lF | grep -v ^t'
-#alias l='ls -lF | sed /^t/d'
 alias ll='ls -Al'
-#alias ll='ls -AlF | sed /^t/'
-alias lt='ls -t'
 alias c='clear'
-
-# You may want to put all your additions into a separate file ~/.bash_aliases
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
+alias h='history'
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
@@ -140,10 +126,9 @@ fi
 DIRLIST="/sbin /usr/sbin $HOME/bin"
 for i in $DIRLIST;
 do
-#   FOUND=$(echo $PATH | tr ':' '\n' | sort -u | grep '^'$i'$')
-    FOUND=$(echo $PATH | tr ':' '\n' | sort -u | grep -w '$i')
+    FOUND=$(echo $PATH | tr ':' '\n' | sort -u | grep -w $i)
     if [ -z $FOUND ]; then
-        PATH=$i:$PATH
+        PATH=$PATH:$i
     fi
 done
 export PATH

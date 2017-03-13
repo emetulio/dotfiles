@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#get the current internet IP adress
+
+CMD[0]="wget"
+CMD[1]="curl"
+
+OPTNS[0]="-qO -"
+OPTNS[1]="-s"
+
+URL=https://wtfismyip.com/text
+
+for i in {0..1}
+do
+    if [ $(which ${CMD[$i]}) ]
+    then
+        ${CMD[$i]} ${OPTNS[$i]} $URL
+        break
+    fi
+done
+

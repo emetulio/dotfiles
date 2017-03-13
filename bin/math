@@ -1,0 +1,4 @@
+#!/bin/sh
+
+/opt/Wolfram/WolframEngine/1[0-9].[0-9]/Executables/math "$@"
+

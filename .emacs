@@ -91,6 +91,11 @@
 ;; windows nt, xp, vista, 7       |
 ;;-<>--<>--<>--<>--<>--<>--<>--<>-+
 (cond ((eq system-type 'windows-nt)
+
+       (setq select-active-regions nil)
+       (setq mouse-drag-copy-region t)
+       (global-set-key [mouse-2] 'mouse-yank-at-click)
+
        ;; setting env var path
        (setenv "PATH"
                (concat

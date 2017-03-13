@@ -5,3 +5,7 @@ vbell off
 defmonitor on
 defscrollback 1000
 autodetach on
+bind c screen 1
+bind 0 select 10
+screen 1
+select 1

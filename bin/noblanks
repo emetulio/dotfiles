@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# get rid of the blank lines, and get rid of the blanks at the beggining of the lines
+egrep -a '[[:print:]]' $1 | sed 's/^[[:blank:]]*//g'
+

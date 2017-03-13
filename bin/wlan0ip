@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# return the IP of the 'wlan' network device
+netstat -ei | grep -A1 wlan0 | grep -Eo 'addr:([[:digit:]]{,3}\.?){,4}' | cut -f2 -d:
+

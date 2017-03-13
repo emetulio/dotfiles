@@ -1,8 +1,3 @@
-#!/bin/sh
-
-# rev equivalent
-awk -vFS= '{for(i=NF;i>=1;i--) printf $(i);print ""}' $1
-arreomx@txmfaduapp02:/export/home/arreomx/bin $ cat txt2html.sed
 #! /bin/sed -f
 
 s/&/\&amp;/g
@@ -22,3 +17,4 @@ $ a\
 </pre>\
 </body>\
 </html>
+

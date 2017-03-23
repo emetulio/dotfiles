@@ -2,41 +2,35 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-#............. variables ......................
-WHICH=$(which which)
-LIST=
-#..............................................   
-
 #............. functions ......................
-findpgm()
-{
-for i in $LIST; do
-    VAR=$($WHICH $i)
-    if [[ -n $VAR ]]; then
-        break
+lookfor() {
+    for b in "$@"; do
+    found=$(which "$b" 2>/dev/null)
+    if [ -n "$found" ]; then
+        if [ -x "$found" ]; then
+        echo "$found"
+        return
+        fi
     fi
-done
-echo $VAR
+    done
 }
 #..............................................   
 
-
-LIST="less most more"
-export PAGER=$(findpgm)
-LIST="emacs vim vi nano ed"
-export EDITOR=$(findpgm)
+export PAGER=$(lookfor less most more)
+export EDITOR=$(lookfor emacs vim vi nano ed)
 export VISUAL=$EDITOR
+export TERM=xterm-256color
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
-export HISTCONTROL=ignoreboth
+HISTCONTROL=ignoreboth
 
 # append to the history file, don't overwrite it
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-export HISTSIZE=1000
-export HISTFILESIZE=2000
+HISTSIZE=1000
+HISTFILESIZE=2000
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -58,25 +52,19 @@ fi
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
-    xterm-color) color_prompt=yes;;
+    xterm-color|xterm-256color) color_prompt=yes;;
 esac
-
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
-force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
+        # We have color support; assume it's compliant with Ecma-48
+        # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+        # a case would tend to support setf rather than setaf.)
+        color_prompt=yes
     else
-	color_prompt=
+        color_prompt=
     fi
 fi
-
 if [ "$color_prompt" = yes ]; then
     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w \$\[\033[00m\] '
 else
@@ -92,24 +80,6 @@ xterm*|rxvt*)
 *)
     ;;
 esac
-
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
-fi
-
-# colored GCC warnings and errors
-export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-
-# some more ls aliases
-alias l='ls -l'
-alias ll='ls -Al'
-alias c='clear'
-alias h='history'
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
@@ -133,3 +103,46 @@ do
 done
 export PATH
 
+# some useful alias
+alias l='ls -l'
+alias ll='ls -Al'
+alias c='clear'
+alias h='history'
+
+################################################################################
+OS=$(uname -s)
+
+case "$OS" in
+    "SunOS" ) 
+        # Solaris ls doesn't allow color, so use special characters
+        LS_OPTS='-F'
+        alias  ls='ls ${LS_OPTS}'
+        ;;
+    "Linux" )
+        # enable color support of ls
+        export LS_OPTS='--color=auto'
+        alias  ls='ls ${LS_OPTS}'
+        # enable color support of grep, egrep, fgrep
+        export GREP_OPTIONS="--color=auto"
+        # colored GCC warnings and errors
+        export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+        # Get color support for 'less'
+#        export LESS="--RAW-CONTROL-CHARS"
+        # Use colors for less, man, etc.
+#        [[ -f ~/.LESS_TERMCAP ]] && . ~/.LESS_TERMCAP
+        ;;
+    "Darwin"|"FreeBSD")
+        # Most FreeBSD & Apple Darwin supports colors
+        export CLICOLOR=true
+        # enable color support of grep, egrep, fgrep
+        export GREP_OPTIONS="--color=auto"
+        # Get color support for 'less'
+#        export LESS="--RAW-CONTROL-CHARS"
+        # Use colors for less, man, etc.
+#        [[ -f ~/.LESS_TERMCAP ]] && . ~/.LESS_TERMCAP
+        ;;
+    * ) 
+        echo "Unknown OS [$OS]"
+        ;;
+esac
+################################################################################

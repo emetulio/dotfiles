@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# AopB [OPTION] [FILE_A] [FILE_B]
+# Executes the operation specified in the option over the 2 files lists
+# FILE_A, filename containing a list of words, one word per line
+# FILE_B, filename containing a list of words, one word per line
+#
+# the valid operations are: 
+# -u, union
+# -i, intersection
+# -d, difference
+# -s, symmetric difference
+
+
+#------------------------------------------------------------------------------
+usage() {
+    echo -e "\n  usage: $(basename $0) [OPTION] [FILE_A] [FILE_B]"
+    echo -e "\n  Executes the operation requested in OPTION over the 2 files lists."
+    echo "    -i, intersection"
+    echo "    -u, union"
+    echo "    -d, difference"
+    echo -e "    -s, symmetric difference\n"
+    exit $1
+}
+#------------------------------------------------------------------------------
+
+VERSION=0.1.0
+# the default operation is the difference
+COMMAND="comm -23"
+
+# option processing
+# if an option should be followed by an argument, it should be followed by a ":"
+while getopts ":vhiuds" optname; do
+    case "$optname" in
+        v)  echo "Version $VERSION"
+            exit 0;
+            ;;
+        h)  usage 0
+            ;;
+        i)  COMMAND="comm -12"
+            ;;
+        u)  COMMAND="sort -u"
+            ;;
+        d)  COMMAND="comm -23"
+            ;;
+        s)  COMMAND="comm -3"
+            ;;
+        ?)  echo "Unknown option $OPTARG"
+            usage 2;
+            ;;
+        :)  echo "No argument value for option $OPTARG"
+            exit 3;
+            ;;
+        *)  echo "Unknown error while processing options"
+            exit 4;
+            ;;
+    esac
+done
+
+shift $(($OPTIND - 1))
+
+# now the parm1==$1, parm2== $2, and so on...
+#------------------------------------------------------------------------------
+# if there are not 2 arguments, exit
+if [ $# -ne 2 ]; then
+    usage 1
+fi
+#------------------------------------------------------------------------------
+# if one of the files are missing, exit
+for i in $@
+do
+    if [ ! -e $i ]; then
+        echo -e "\n  file [$i] does not exist.\n"
+        exit 2
+    fi
+done
+#------------------------------------------------------------------------------
+# build 2 temp names 
+tmpfile1=$1.$$.$RANDOM
+tmpfile2=$2.$$.$RANDOM
+#------------------------------------------------------------------------------
+# perform the following tasks for the 2 files given as arguments:
+# 1 - get rid of the blank lines (grep)
+# 2 - delete [:space:] at the beggining, and at the end of each line (sed)
+# 3 - convert each blank space into a new line, this will split multiple words 
+#     in multiple lines, allow only one word per line (tr)
+# 4 - get rid of the blank lines, since we convert spaces into new lines
+#     there might be new blank lines (grep)
+# 5 - sort the lines, and delete dups (sort)
+# 6 - dump the resulting words to a temp file
+grep -Ea '[[:print:]]' $1|sed -e 's/^[[:blank:]]*//;s/[[:blank:]]*$//'|tr ' ' '\n'|grep -Ea '[[:print:]]'|sort -biu>$tmpfile1
+grep -Ea '[[:print:]]' $2|sed -e 's/^[[:blank:]]*//;s/[[:blank:]]*$//'|tr ' ' '\n'|grep -Ea '[[:print:]]'|sort -biu>$tmpfile2
+#------------------------------------------------------------------------------
+# executes A operation B
+#grep -xvf $tmpfile2 $tmpfile1
+#comm --nocheck-order -12 $tmpfile1 $tmpfile2
+$COMMAND $tmpfile1 $tmpfile2 | sort -n | sed 's/^[[:blank:]]*//g'
+#------------------------------------------------------------------------------
+# delete temp files
+rm $tmpfile1 $tmpfile2
+#------------------------------------------------------------------------------
+exit 0
